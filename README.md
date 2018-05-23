@@ -1,8 +1,6 @@
-# haxe-ld-template
+# tetris-haxeflixel
 
-A Ludum Dare template using HaxeFlixel. Includes Visual Studio Code settings for default build task.
-
-Updated now for HaxeFlixel 4.4.0 and OpenFL 8!
+A tetris demo project using Haxeflixel.
 
 ## Installation
 

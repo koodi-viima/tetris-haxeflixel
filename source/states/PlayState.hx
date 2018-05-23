@@ -6,6 +6,7 @@ import flixel.input.gamepad.FlxGamepad;
 
 import states.playstate.Field;
 import states.playstate.Tetromino;
+import states.playstate.TetrominoFactory;
 
 class PlayState extends FlxState {
 
@@ -27,21 +28,14 @@ class PlayState extends FlxState {
         field = new Field(10, 20);
         add(field);
 
-        tetromino = new Tetromino([
-            [[0, 1, 0], [0, 1, 0], [0, 1, 1]],
-            [[0, 0, 0], [1, 1, 1], [1, 0, 0]],
-            [[1, 1, 0], [0, 1, 0], [0, 1, 0]],
-            [[0, 0, 1], [1, 1, 1], [0, 0, 0]]],
-            0, 5);
-        nextTetromino = new Tetromino([[[1, 1], [1, 1]]], 0, 5);
+        tetromino = TetrominoFactory.createRandom();
+        nextTetromino = TetrominoFactory.createRandom();
         add(tetromino);
     }
 
     override public function update(elapsed: Float): Void {
         super.update(elapsed);
-
         timer += elapsed;
-
         fallTime = basicFallTime;
 
         Util.checkQuitKey();
@@ -129,7 +123,7 @@ class PlayState extends FlxState {
                 tetromino.kill();
                 tetromino = nextTetromino;
                 add(tetromino);
-                nextTetromino = new Tetromino([[[1, 1], [1, 1]]], 0, 5);
+                nextTetromino = TetrominoFactory.createRandom();
                 trace(field.shape);
             }
             timer = 0.0;
@@ -137,11 +131,12 @@ class PlayState extends FlxState {
     }
 
     private function isLegalState(): Bool {
-        for (space in tetromino.occupiedSquares) {
-            var row = space[0];
-            var col = space[1];
+        for (squareInfo in tetromino.occupiedSquares) {
+            var row = squareInfo.row;
+            var col = squareInfo.column;
 
-            if (row >= field.height ||
+            if (row < 0 ||
+                row >= field.height ||
                 col < 0 ||
                 col >= field.width ||
                 field.shape[row][col] != 0) {

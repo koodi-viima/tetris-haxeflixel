@@ -4,30 +4,29 @@ typedef Shapes = Array<Array<Array<Int>>>;
 
 class Tetromino extends TetrisGroup {
 
-    public var previousTopLeft: Array<Int>; // TODO: why public?
-
     var shapes: Shapes;
     var shapeIndex = 0;
+    var previousTopLeft: Square;
     var previousShapeIndex = 0;
 
-    public function new(shapes: Shapes, topLeftRow: Int, topLeftCol: Int): Void {
-        super(shapes[0], topLeftRow, topLeftCol);
+    public function new(shapes: Shapes, topLeft: Square): Void {
+        super(shapes[0], topLeft);
         this.shapes = shapes;
-        previousTopLeft = [topLeftRow, topLeftCol];
+        previousTopLeft = {row: topLeft.row, column: topLeft.column};
         updateBlocks();
     }
 
     public function move(dRow: Int, dCol: Int): Void {
-        previousTopLeft[0] = topLeft[0];
-        previousTopLeft[1] = topLeft[1];
-        topLeft[0] += dRow;
-        topLeft[1] += dCol;
+        previousTopLeft.row = topLeft.row;
+        previousTopLeft.column = topLeft.column;
+        topLeft.row += dRow;
+        topLeft.column += dCol;
         updateBlocks();
     }
 
     public function revertPosition(): Void {
-        topLeft[0] = previousTopLeft[0];
-        topLeft[1] = previousTopLeft[1];
+        topLeft.row = previousTopLeft.row;
+        topLeft.column = previousTopLeft.column;
         updateBlocks();
     }
 
