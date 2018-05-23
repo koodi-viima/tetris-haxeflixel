@@ -1,0 +1,154 @@
+package states;
+
+import flixel.FlxState;
+import flixel.FlxG;
+import flixel.input.gamepad.FlxGamepad;
+
+import states.playstate.Field;
+import states.playstate.Tetromino;
+
+class PlayState extends FlxState {
+
+    var field: Field;
+    var currentLevel: Int;
+
+    var tetromino: Tetromino;
+    var nextTetromino: Tetromino;
+
+    var timer: Float = 0.0;
+    var fallTime: Float = 0.8;
+    var basicFallTime = 0.8;
+    var fastFallTime = 0.05;
+
+    override public function create(): Void {
+        super.create();
+        currentLevel = 0;
+
+        field = new Field(10, 20);
+        add(field);
+
+        tetromino = new Tetromino([
+            [[0, 1, 0], [0, 1, 0], [0, 1, 1]],
+            [[0, 0, 0], [1, 1, 1], [1, 0, 0]],
+            [[1, 1, 0], [0, 1, 0], [0, 1, 0]],
+            [[0, 0, 1], [1, 1, 1], [0, 0, 0]]],
+            0, 5);
+        nextTetromino = new Tetromino([[[1, 1], [1, 1]]], 0, 5);
+        add(tetromino);
+    }
+
+    override public function update(elapsed: Float): Void {
+        super.update(elapsed);
+
+        timer += elapsed;
+
+        fallTime = basicFallTime;
+
+        Util.checkQuitKey();
+        updateInputs();
+
+        updateTetromino(elapsed);
+    }
+
+    private function updateKeyboardInput(): Void {
+        if (FlxG.keys.justPressed.LEFT) {
+            tetromino.move(0, -1);
+            if (!isLegalState()) {
+                tetromino.revertPosition();
+            }
+        }
+        if (FlxG.keys.justPressed.RIGHT) {
+            tetromino.move(0, 1);
+            if (!isLegalState()) {
+                tetromino.revertPosition();
+            }
+        }
+        if (FlxG.keys.pressed.DOWN) {
+            fallTime = fastFallTime;
+        }
+        if (FlxG.keys.justPressed.CONTROL) {
+            tetromino.rotateLeft();
+            if (!isLegalState()) {
+                tetromino.revertRotation();
+            };
+        }
+        if (FlxG.keys.justPressed.ALT) {
+            tetromino.rotateRight();
+            if (!isLegalState()) {
+                tetromino.revertRotation();
+            }
+        }
+    }
+
+    private function updateGamepadInput(gamepad: FlxGamepad): Void {
+        if (gamepad.justPressed.DPAD_LEFT) {
+            tetromino.move(0, -1);
+            if (!isLegalState()) {
+                tetromino.revertPosition();
+            }
+        }
+        if (gamepad.justPressed.DPAD_RIGHT) {
+            tetromino.move(0, 1);
+            if (!isLegalState()) {
+                tetromino.revertPosition();
+            }
+        }
+        if (gamepad.pressed.DPAD_DOWN) {
+            fallTime = fastFallTime;
+        }
+        if (gamepad.justPressed.A) {
+            tetromino.rotateLeft();
+            if (!isLegalState()) {
+                tetromino.revertRotation();
+            }
+        }
+        if (gamepad.justPressed.B) {
+            tetromino.rotateRight();
+            if (!isLegalState()) {
+                tetromino.revertRotation();
+            }
+        }
+    }
+
+    private function updateInputs(): Void {
+        #if (!mobile)
+        updateKeyboardInput();
+        var gamepad: FlxGamepad = FlxG.gamepads.lastActive;
+        if (gamepad != null) {
+            updateGamepadInput(gamepad);
+        }
+        #end
+    }
+
+    private function updateTetromino(elapsed: Float) {
+        if (timer >= fallTime) {
+            tetromino.move(1, 0);
+            if (!isLegalState()) {
+                tetromino.revertPosition();
+                field.merge(tetromino);
+                tetromino.kill();
+                tetromino = nextTetromino;
+                add(tetromino);
+                nextTetromino = new Tetromino([[[1, 1], [1, 1]]], 0, 5);
+                trace(field.shape);
+            }
+            timer = 0.0;
+        }
+    }
+
+    private function isLegalState(): Bool {
+        for (space in tetromino.occupiedSquares) {
+            var row = space[0];
+            var col = space[1];
+
+            if (row >= field.height ||
+                col < 0 ||
+                col >= field.width ||
+                field.shape[row][col] != 0) {
+
+                return false;
+            }
+        }
+        return true;
+    }
+}
