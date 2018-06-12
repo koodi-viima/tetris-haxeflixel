@@ -28,13 +28,6 @@ class TetrisGroup extends FlxTypedGroup<FlxSprite> {
         }
     }
 
-    public function merge(tg: TetrisGroup) {
-        for (s in tg.occupiedSquares) {
-            shape[s.row][s.column] = s.value;
-        }
-        updateBlocks();
-    }
-
     private function updateBlocks(): Void {
         forEach(function (block) { block.kill(); });
         occupiedSquares = new Array<SquareInfo>();
