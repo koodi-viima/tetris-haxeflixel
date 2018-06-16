@@ -4,6 +4,7 @@ import flixel.FlxState;
 import flixel.FlxG;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
+import flixel.input.gamepad.FlxGamepad;
 
 class MainMenuState extends FlxState {
 
@@ -21,6 +22,12 @@ class MainMenuState extends FlxState {
         Util.checkQuitKey();
         if (FlxG.keys.justPressed.SPACE) {
             FlxG.switchState(new PlayState());
+        }
+        var gamepad: FlxGamepad = FlxG.gamepads.lastActive;
+        if (gamepad != null) {
+            if (gamepad.justPressed.A) {
+                 FlxG.switchState(new PlayState());
+            }
         }
     }
 
